@@ -56,6 +56,45 @@ app.delete('/api/persons/:id', (req, res) => {
   res.status(204).end();
 })
 
+app.post('/api/persons', (req, res) => {
+  const body = req.body
+
+  let errors = []
+
+  if (!body.name) {
+    errors.push('name missing')
+  }
+  if (!body.number) {
+    errors.push('number missing')
+  }
+  if (persons.find(p => p.name === body.name)) {
+    errors.push(`information for ${body.name} already exists`)
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json(errors)
+  }
+
+  const person = {
+    id: generateId(),
+    name: body.name,
+    number: body.number
+  }
+
+  persons = persons.concat(person)
+
+  res.json(person)
+
+})
+
+// does not work if there are more than 665 persons but do not care about it for now.
+generateId = () => {
+  let i;
+  do {
+    i = Math.floor(Math.random() * Math.floor(666))
+  } while (persons.find(p => p.id === i))
+  return i;
+}
 
 const port = 3001
 app.listen(port)
