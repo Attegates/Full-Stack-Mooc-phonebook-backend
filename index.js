@@ -22,20 +22,33 @@ let persons = [
     "number": "666",
   },
   {
+    "id": 4,
     "name": "testi",
     "number": "001",
-    "id": 4
   }
 ]
-
-app.get('/api/persons', (req, res) => {
-  res.json(persons)
-})
 
 app.get('/info', (req, res) => {
   const markup = `<p>Phonebook has info for ${persons.length} people</p><p>${new Date()}</p>`
   res.send(markup)
 })
+
+app.get('/api/persons', (req, res) => {
+  res.json(persons)
+})
+
+app.get('/api/persons/:id', (req, res) => {
+  const id = Number(req.params.id)
+  const person = persons.find(p => {
+    return p.id === id
+  })
+  if (person) {
+    res.json(person)
+  } else {
+    res.status(404).end()
+  }
+})
+
 
 const port = 3001
 app.listen(port)
