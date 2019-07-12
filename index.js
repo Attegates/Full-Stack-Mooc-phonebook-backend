@@ -1,7 +1,9 @@
+require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors')
+const Person = require('./models/person')
 
 const app = express()
 app.use(bodyParser.json())
@@ -13,7 +15,7 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :r
 
 app.use(cors())
 app.use(express.static('build'))
-
+/*
 let persons = [
   {
     "id": 1,
@@ -36,6 +38,7 @@ let persons = [
     "number": "001",
   }
 ]
+*/
 
 app.get('/info', (req, res) => {
   const markup = `<p>Phonebook has info for ${persons.length} people</p><p>${new Date()}</p>`
@@ -43,7 +46,9 @@ app.get('/info', (req, res) => {
 })
 
 app.get('/api/persons', (req, res) => {
-  res.json(persons)
+  Person.find({}).then(persons => {
+    res.json(persons.map(p => p.toJSON()))
+  })
 })
 
 app.get('/api/persons/:id', (req, res) => {
@@ -76,23 +81,24 @@ app.post('/api/persons', (req, res) => {
   if (!body.number) {
     errors.push('number missing')
   }
+  /* don't care about duplicates for now.
   if (persons.find(p => p.name === body.name)) {
     errors.push(`information for ${body.name} already exists`)
   }
+  */
 
   if (errors.length > 0) {
     return res.status(400).json(errors)
   }
 
-  const person = {
-    id: generateId(),
+  const person = new Person({
     name: body.name,
     number: body.number
-  }
+  })
 
-  persons = persons.concat(person)
-
-  res.json(person)
+  person.save().then(savedPerson => {
+    res.json(savedPerson.toJSON())
+  })
 
 })
 
