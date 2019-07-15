@@ -16,11 +16,12 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :r
 app.use(cors())
 app.use(express.static('build'))
 
-
+/*
 app.get('/info', (req, res) => {
   const markup = `<p>Phonebook has info for ${persons.length} people</p><p>${new Date()}</p>`
   res.send(markup)
 })
+*/
 
 app.get('/api/persons', (req, res) => {
   Person.find({}).then(persons => {
@@ -107,10 +108,10 @@ app.put('/api/persons/:id', (req, res, next) => {
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
 
-  if (error.name === 'CastError' && error.kind == 'ObjectId') {
+  if (error.name === 'CastError' && error.kind === 'ObjectId') {
     return response.status(400).send({ error: 'malformatted id' })
   } else if (error.name === 'ValidationError') {
-    return response.status(400).send({error: error.message})
+    return response.status(400).send({ error: error.message })
   }
   next(error)
 }
